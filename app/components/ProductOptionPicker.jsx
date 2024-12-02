@@ -6,6 +6,9 @@ export function ProductOptionPicker({product}) {
   const [totalCost, setTotalCost] = useState(
     product.variants.nodes[0].price?.amount || 0,
   );
+  const [compareAtPrice, setCompareAtPrice] = useState(
+    product.variants.nodes[0].compareAtPrice?.amount || 0,
+  );
   const [selectedOptions, setSelectedOptions] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [openSections, setOpenSections] = useState({
@@ -116,19 +119,31 @@ export function ProductOptionPicker({product}) {
     setSelectedOptions(initialSelections);
   }, []);
 
-  // Update total cost when selections change
+  // Update total cost and compareAt price when selections change
   useEffect(() => {
     let newTotalCost = Number(product.variants.nodes[0].price?.amount || 0);
+    let newCompareAtPrice = Number(
+      product.variants.nodes[0].compareAtPrice?.amount || 0,
+    );
+
     Object.values(selectedOptions).forEach((value) => {
       if (value.includes('+$')) {
         const priceMatch = value.match(/\+\$(\d+)/);
         if (priceMatch) {
-          newTotalCost += Number(priceMatch[1]);
+          const adjustment = Number(priceMatch[1]);
+          newTotalCost += adjustment;
+          newCompareAtPrice += adjustment;
         }
       }
     });
+
     setTotalCost(newTotalCost);
-  }, [selectedOptions, product.variants.nodes[0].price?.amount]);
+    setCompareAtPrice(newCompareAtPrice);
+  }, [
+    selectedOptions,
+    product.variants.nodes[0].price?.amount,
+    product.variants.nodes[0].compareAtPrice?.amount,
+  ]);
 
   const handleOptionChange = (name, value, priceAdjustment) => {
     setSelectedOptions((prev) => ({
@@ -156,12 +171,23 @@ export function ProductOptionPicker({product}) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">
-        $
-        {totalCost.toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}
+      <h2 className="text-2xl font-bold flex items-center gap-3">
+        <span>
+          $
+          {totalCost.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
+        {compareAtPrice > totalCost && (
+          <span className="text-gray-500 line-through">
+            $
+            {compareAtPrice.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        )}
       </h2>
 
       {chaiseSide.length > 0 && (

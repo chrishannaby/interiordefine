@@ -227,11 +227,13 @@ const PRODUCT_FRAGMENT = `#graphql
     }
 
         chaise_side: metafield(namespace: "custom", key: "chaise_side") {
-          reference {
-            ... on Metaobject {
-              fields {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
                 key
                 value
+                }
               }
             }
           }

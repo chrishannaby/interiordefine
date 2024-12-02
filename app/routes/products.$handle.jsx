@@ -10,6 +10,7 @@ import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {ProductOptionPicker} from '~/components/ProductOptionPicker';
 
 /**
  * @type {MetaFunction<typeof loader>}
@@ -128,7 +129,6 @@ function redirectToFirstVariant({product, request}) {
 }
 
 export default function Product() {
-  /** @type {LoaderReturnData} */
   const {product, variants} = useLoaderData();
   const selectedVariant = useOptimisticVariant(
     product.selectedVariant,
@@ -136,39 +136,16 @@ export default function Product() {
   );
 
   const {title, descriptionHtml} = product;
+  const productFormId = 'product-form';
 
   return (
     <div className="product">
       <ProductImage image={selectedVariant?.image} />
       <div className="product-main">
         <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
         <br />
-        <Suspense
-          fallback={
-            <ProductForm
-              product={product}
-              selectedVariant={selectedVariant}
-              variants={[]}
-            />
-          }
-        >
-          <Await
-            errorElement="There was a problem loading product variants"
-            resolve={variants}
-          >
-            {(data) => (
-              <ProductForm
-                product={product}
-                selectedVariant={selectedVariant}
-                variants={data?.product?.variants.nodes || []}
-              />
-            )}
-          </Await>
-        </Suspense>
+        <ProductOptionPicker product={product} />
+
         <br />
         <br />
         <p>
@@ -248,7 +225,134 @@ const PRODUCT_FRAGMENT = `#graphql
         name
       }
     }
-    selectedVariant: variantBySelectedOptions(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
+
+        chaise_side: metafield(namespace: "custom", key: "chaise_side") {
+          reference {
+            ... on Metaobject {
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+        fabric_options: metafield(namespace: "custom", key: "fabric_options") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                  references(first: 1) {
+                    nodes {
+                      ... on Metaobject {
+                        fields {
+                          key
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        pricing_class: metafield(namespace: "custom", key: "pricing_class") {
+          reference {
+            ... on Metaobject {
+              fields {
+                key
+                value
+              }
+            }
+          }
+        }
+        chaise_length: metafield(namespace: "custom", key: "chaise_length") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        total_depth: metafield(namespace: "custom", key: "total_depth") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        legs: metafield(namespace: "custom", key: "legs") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        chaise_width: metafield(namespace: "custom", key: "chaise_width") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        size: metafield(namespace: "custom", key: "size") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        seat_cushions: metafield(namespace: "custom", key: "seat_cushions") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+        cushion_fill: metafield(namespace: "custom", key: "cushion_fill") {
+          references(first: 50) {
+            nodes {
+              ... on Metaobject {
+                fields {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+    selectedVariant: variantBySelectedOptions(selectedOptions: $selectedOptions) {
       ...ProductVariant
     }
     variants(first: 1) {

@@ -1,0 +1,254 @@
+{% comment %}
+  Renders product option-picker
+  Accepts:
+  - product: {Object} product object.
+  - block: {Object} passing the block information.
+  - product_form_id: {String} Id of the product form to which the variant picker is associated.
+  Usage:
+  {% render 'product-options-picker', product: product, block: block, product_form_id: product_form_id %}
+{% endcomment %}
+<div>
+  <h2>
+    $<span id='total_cost_display'>{{ product.price | money_without_currency }}</span>
+  </h2>
+  {%- if product.metafields.custom.chaise_side != blank -%}
+    <p>Choose Chaise Side</p>
+    {% assign chaise_sides = product.metafields.custom.chaise_side.value %}
+    {% for side in chaise_sides %}
+      <div>
+        <input
+          type='radio'
+          id='{{ side.chaise_side }}'
+          name='properties[Chase Side]'
+          value='{{ side.chaise_side }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ side.chaise_side }}'>{{ side.chaise_side | capitalize }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.fabric_options != blank -%}
+    <p>Choose Fabric</p>
+    {% assign pricing_class = product.metafields.custom.pricing_class.value %}
+    {% assign fabric_options = product.metafields.custom.fabric_options.value %}
+    {% for fabric in fabric_options %}
+      {% assign price_adjustment = 0 %}
+      {% assign price_display = '' %}
+      {% assign tier_type = fabric.tier_option.value.type %}
+      {% assign discount = fabric.price_adjustment.value %}
+
+      {% if tier_type == 'standard' %}
+        {% assign price_display = ' Included' %}
+      {% else %}
+        {% assign tier_price = pricing_class[tier_type] %}
+        {% if fabric.discount.value == true %}
+          {% assign price_adjustment = tier_price | minus: discount %}
+        {% else %}
+          {% assign price_adjustment = tier_price %}
+        {% endif %}
+        {% assign price_display = ' +$' | append: price_adjustment %}
+      {% endif %}
+
+      <div>
+        <input
+          type='radio'
+          id='fabric-{{ fabric.name | handle }}'
+          name='properties[Color]'
+          value='{{ fabric.name }}'
+          data-price-adjustment='{{ price_adjustment }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='fabric-{{ fabric.name | handle }}'>
+          {{- fabric.name -}}
+          {{- price_display -}}
+        </label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.chaise_length != blank -%}
+    {% assign chaise_lengths = product.metafields.custom.chaise_length.value %}
+    <p>Choose Chaise Length</p>
+    {% for length in chaise_lengths %}
+      {% if length.price_adjustment > 0 %}
+        {% assign label = length.name | replace: '"', '&quot;' | append: ' +$' | append: length.price_adjustment %}
+      {% else %}
+        {% assign label = length.name | replace: '"', '&quot;' | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ length.name }}'
+          name='properties[Chaise Length]'
+          value='{{ label }}'
+          data-price-adjustment='{{ length.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ length.name }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.total_depth != blank -%}
+    <p>Choose Total Depth</p>
+    {% assign total_depths = product.metafields.custom.total_depth.value %}
+    {% for depth in total_depths %}
+      {% if depth.price_adjustment > 0 %}
+        {% assign label = depth.title | replace: '"', '&quot;' | append: ' +$' | append: depth.price_adjustment %}
+      {% else %}
+        {% assign label = depth.title | replace: '"', '&quot;' | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ depth.title }}'
+          name='properties[Total Depth]'
+          value='{{ label }}'
+          data-price-adjustment='{{ depth.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ depth.title }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.legs != blank -%}
+    <p>Choose Legs</p>
+    {% assign legs = product.metafields.custom.legs.value %}
+    {% for leg in legs %}
+      <div>
+        <input
+          type='radio'
+          id='{{ leg.name }}'
+          name='properties[Finish]'
+          value='{{ leg.name }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ leg.name }}'>{{ leg.name | capitalize }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.chaise_width != blank -%}
+    <p>Choose Chaise Width</p>
+    {% assign chaise_widths = product.metafields.custom.chaise_width.value %}
+    {% for width in chaise_widths %}
+      {% if width.price_adjustment > 0 %}
+        {% assign label = width.name | replace: '"', '&quot;' | append: ' +$' | append: width.price_adjustment %}
+      {% else %}
+        {% assign label = width.name | replace: '"', '&quot;' | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ width.name }}'
+          name='properties[Chaise Width]'
+          value='{{ label }}'
+          data-price-adjustment='{{ width.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ width.name }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.size != blank -%}
+    <p>Choose Size</p>
+    {% assign sizes = product.metafields.custom.size.value %}
+    {% for size in sizes %}
+      {% if size.price_adjustment > 0 %}
+        {% assign label = size.name | replace: '"', '&quot;' | append: ' +$' | append: size.price_adjustment %}
+      {% else %}
+        {% assign label = size.name | replace: '"', '&quot;' | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ size.name }}'
+          name='properties[Length]'
+          value='{{ label }}'
+          data-price-adjustment='{{ size.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ size.name }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.seat_cushions != blank -%}
+    <p>Choose Seat Cushions</p>
+    {% assign cushions = product.metafields.custom.seat_cushions.value %}
+    {% for cushion in cushions %}
+      {% if cushion.price_adjustment > 0 %}
+        {% assign label = cushion.name | append: ' +$' | append: cushion.price_adjustment %}
+      {% else %}
+        {% assign label = cushion.name | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ cushion.name }}'
+          name='properties[Total Sofa Cushions]'
+          value='{{ label }}'
+          data-price-adjustment='{{ cushion.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ cushion.name }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  {%- if product.metafields.custom.cushion_fill != blank -%}
+    <p>Choose Seat Cushions</p>
+    {% assign cushion_fills = product.metafields.custom.cushion_fill.value %}
+    {% for fill in cushion_fills %}
+      {% if fill.price_adjustment > 0 %}
+        {% assign label = fill.name | append: ' +$' | append: fill.price_adjustment %}
+      {% else %}
+        {% assign label = fill.name | append: ' Included' %}
+      {% endif %}
+      <div>
+        <input
+          type='radio'
+          id='{{ fill.name }}'
+          name='properties[Cushion Fill]'
+          value='{{ label }}'
+          data-price-adjustment='{{ fill.price_adjustment | default: 0 }}'
+          form='{{ product_form_id }}'
+        >
+        <label for='{{ fill.name }}'>{{ label }}</label>
+      </div>
+    {% endfor %}
+  {%- endif -%}
+  <input
+    type='hidden'
+    id='total_cost_input'
+    name='properties[_total_cost]'
+    value='{{ total_cost }}'
+    form='{{ product_form_id }}'
+  >
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    const totalCostInput = document.getElementById('total_cost_input');
+    const totalCostDisplay = document.getElementById('total_cost_display');
+    const basePrice = {{ product.price }};
+
+    function updateTotalCost() {
+      let totalCost = basePrice;
+      radioButtons.forEach(radio => {
+        if (radio.checked && radio.dataset.priceAdjustment) {
+          const adjustment = Math.max(parseInt(radio.dataset.priceAdjustment) * 100, 0);
+          totalCost += adjustment;
+        }
+      });
+
+      // Update both the hidden input and display
+      totalCostInput.value = totalCost / 100; // Convert to dollars for the form submission
+      totalCostDisplay.textContent = (totalCost / 100).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', updateTotalCost);
+    });
+
+    updateTotalCost(); // Initialize on page load
+  });
+</script>

@@ -2,6 +2,9 @@ import {defer} from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link} from '@remix-run/react';
 import {Suspense} from 'react';
 import {Image, Money} from '@shopify/hydrogen';
+import {Content, fetchOneEntry} from '@builder.io/sdk-react';
+
+const apiKey = '25b13b0802e6475f8d08239f389cd235';
 
 /**
  * @type {MetaFunction}
@@ -14,13 +17,17 @@ export const meta = () => {
  * @param {LoaderFunctionArgs} args
  */
 export async function loader(args) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+  const urlPath = `/`;
 
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
-
-  return defer({...deferredData, ...criticalData});
+  const content = await fetchOneEntry({
+    model: 'page',
+    apiKey: apiKey,
+    userAttributes: {
+      urlPath,
+    },
+  })
+  
+  return defer({...content});
 }
 
 /**
@@ -64,8 +71,7 @@ export default function Homepage() {
   const data = useLoaderData();
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
+      <Content content={data.content} apiKey={apiKey} model="page" />
     </div>
   );
 }
@@ -73,119 +79,119 @@ export default function Homepage() {
 /**
  * @param {{
  *   collection: FeaturedCollectionFragment;
- * }}
- */
+* }}
+*/
 function FeaturedCollection({collection}) {
-  if (!collection) return null;
-  const image = collection?.image;
-  return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
-  );
+ if (!collection) return null;
+ const image = collection?.image;
+ return (
+   <Link
+     className="featured-collection"
+     to={`/collections/${collection.handle}`}
+   >
+     {image && (
+       <div className="featured-collection-image">
+         <Image data={image} sizes="100vw" />
+       </div>
+     )}
+     <h1>{collection.title}</h1>
+   </Link>
+ );
 }
 
 /**
- * @param {{
- *   products: Promise<RecommendedProductsQuery | null>;
- * }}
- */
+* @param {{
+*   products: Promise<RecommendedProductsQuery | null>;
+* }}
+*/
 function RecommendedProducts({products}) {
-  return (
-    <div className="recommended-products">
-      <h2>Recommended Products</h2>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Await resolve={products}>
-          {(response) => (
-            <div className="recommended-products-grid">
-              {response
-                ? response.products.nodes.map((product) => (
-                    <Link
-                      key={product.id}
-                      className="recommended-product"
-                      to={`/products/${product.handle}`}
-                    >
-                      <Image
-                        data={product.images.nodes[0]}
-                        aspectRatio="1/1"
-                        sizes="(min-width: 45em) 20vw, 50vw"
-                      />
-                      <h4>{product.title}</h4>
-                      <small>
-                        <Money data={product.priceRange.minVariantPrice} />
-                      </small>
-                    </Link>
-                  ))
-                : null}
-            </div>
-          )}
-        </Await>
-      </Suspense>
-      <br />
-    </div>
-  );
+ return (
+   <div className="recommended-products">
+     <h2>Recommended Products</h2>
+     <Suspense fallback={<div>Loading...</div>}>
+       <Await resolve={products}>
+         {(response) => (
+           <div className="recommended-products-grid">
+             {response
+               ? response.products.nodes.map((product) => (
+                   <Link
+                     key={product.id}
+                     className="recommended-product"
+                     to={`/products/${product.handle}`}
+                   >
+                     <Image
+                       data={product.images.nodes[0]}
+                       aspectRatio="1/1"
+                       sizes="(min-width: 45em) 20vw, 50vw"
+                     />
+                     <h4>{product.title}</h4>
+                     <small>
+                       <Money data={product.priceRange.minVariantPrice} />
+                     </small>
+                   </Link>
+                 ))
+               : null}
+           </div>
+         )}
+       </Await>
+     </Suspense>
+     <br />
+   </div>
+ );
 }
 
 const FEATURED_COLLECTION_QUERY = `#graphql
-  fragment FeaturedCollection on Collection {
-    id
-    title
-    image {
-      id
-      url
-      altText
-      width
-      height
-    }
-    handle
-  }
-  query FeaturedCollection($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
-      nodes {
-        ...FeaturedCollection
-      }
-    }
-  }
+ fragment FeaturedCollection on Collection {
+   id
+   title
+   image {
+     id
+     url
+     altText
+     width
+     height
+   }
+   handle
+ }
+ query FeaturedCollection($country: CountryCode, $language: LanguageCode)
+   @inContext(country: $country, language: $language) {
+   collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
+     nodes {
+       ...FeaturedCollection
+     }
+   }
+ }
 `;
 
 const RECOMMENDED_PRODUCTS_QUERY = `#graphql
-  fragment RecommendedProduct on Product {
-    id
-    title
-    handle
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    images(first: 1) {
-      nodes {
-        id
-        url
-        altText
-        width
-        height
-      }
-    }
-  }
-  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
-      nodes {
-        ...RecommendedProduct
-      }
-    }
-  }
+ fragment RecommendedProduct on Product {
+   id
+   title
+   handle
+   priceRange {
+     minVariantPrice {
+       amount
+       currencyCode
+     }
+   }
+   images(first: 1) {
+     nodes {
+       id
+       url
+       altText
+       width
+       height
+     }
+   }
+ }
+ query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
+   @inContext(country: $country, language: $language) {
+   products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+     nodes {
+       ...RecommendedProduct
+     }
+   }
+ }
 `;
 
 /** @typedef {import('@shopify/remix-oxygen').LoaderFunctionArgs} LoaderFunctionArgs */

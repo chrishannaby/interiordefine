@@ -17,7 +17,7 @@ export const meta = () => {
  * @param {LoaderFunctionArgs} args
  */
 export async function loader(args) {
-  const urlPath = `/`;
+  const urlPath = '/';
 
   const content = await fetchOneEntry({
     model: 'page',

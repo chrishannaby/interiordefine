@@ -9,10 +9,10 @@ import {useAside} from '~/components/Aside';
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
   const {shop, menu} = header;
   return (
-    <header className="flex flex-col px-8 pt-4 divide-y-1 divide-gray-200">
+    <header className="flex flex-col px-8 pt-6 divide-y-1 divide-gray-200">
       <div className="flex justify-between items-center pb-4">
         <NavLink prefetch="intent" to="/" end>
-          <svg width="265.5" height="16" class="logo-full" aria-hidden="true">
+          <svg width="265.5" height="16" aria-hidden="true">
             <use href="#svg-logo"></use>
             <symbol id="svg-logo" viewBox="0 0 265.5 16">
               <polygon

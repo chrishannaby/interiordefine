@@ -30,12 +30,21 @@ export async function loader(args) {
   return json({content});
 }
 
+function LinkComponent(props) {
+  return <Link {...props} to={props.href} />;
+}
+
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
   return (
     <div className="home">
-      <Content content={data.content} apiKey={apiKey} model="page" />
+      <Content
+        content={data.content}
+        apiKey={apiKey}
+        model="page"
+        LinkComponent={LinkComponent}
+      />
     </div>
   );
 }

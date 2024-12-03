@@ -3,7 +3,6 @@ import {Await, useLoaderData, Link} from '@remix-run/react';
 import {Suspense} from 'react';
 import {Image, Money} from '@shopify/hydrogen';
 import {Content, fetchOneEntry} from '@builder.io/sdk-react';
-import {fetch as webFetch} from '@remix-run/web-fetch';
 
 const apiKey = '25b13b0802e6475f8d08239f389cd235';
 
@@ -26,7 +25,6 @@ export async function loader(args) {
     userAttributes: {
       urlPath,
     },
-    fetch: webFetch,
   });
 
   return json({content});

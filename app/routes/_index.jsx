@@ -35,7 +35,6 @@ export async function loader(args) {
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
-  console.log(data);
   return (
     <div className="home">
       <Content content={data.content} apiKey={apiKey} model="page" />

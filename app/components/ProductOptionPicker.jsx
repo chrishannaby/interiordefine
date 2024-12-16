@@ -14,14 +14,16 @@ export function ProductOptionPicker({product}) {
   const [openSections, setOpenSections] = useState({
     'Chase Side': true,
     Color: false,
+    'Chaise Width': false,
     'Chaise Length': false,
     'Total Depth': false,
     Finish: false,
-    'Chaise Width': false,
     Length: false,
     'Total Sofa Cushions': false,
     'Cushion Fill': false,
   });
+
+  const [availableChaiseLengths, setAvailableChaiseLengths] = useState([]);
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
@@ -38,7 +40,6 @@ export function ProductOptionPicker({product}) {
   const chaiseSide = product.chaise_side?.references?.nodes || [];
   const fabricOptions = product.fabric_options?.references?.nodes || [];
   const pricingClass = product.pricing_class?.reference?.fields || [];
-  const chaiseLengths = product.chaise_length?.references?.nodes || [];
   const totalDepths = product.total_depth?.references?.nodes || [];
   const legs = product.legs?.references?.nodes || [];
   const chaiseWidths = product.chaise_width?.references?.nodes || [];
@@ -59,14 +60,34 @@ export function ProductOptionPicker({product}) {
         'name',
       );
     }
-    if (chaiseLengths.length > 0) {
-      const name = getFieldValue(chaiseLengths[0].fields, 'name');
+    if (chaiseWidths.length > 0) {
+      const firstWidth = chaiseWidths[0];
+      const name = getFieldValue(firstWidth.fields, 'name');
       const priceAdjustment = Number(
-        getFieldValue(chaiseLengths[0].fields, 'price_adjustment') || 0,
+        getFieldValue(firstWidth.fields, 'price_adjustment') || 0,
       );
-      initialSelections['Chaise Length'] = `${name}${
+      initialSelections['Chaise Width'] = `${name}${
         priceAdjustment > 0 ? ` +$${priceAdjustment}` : ' Included'
       }`;
+
+      // Set initial available lengths
+      const initialLengths =
+        firstWidth.fields.find((f) => f.key === 'chaise_length')?.references
+          ?.nodes || [];
+      setAvailableChaiseLengths(initialLengths);
+
+      if (initialLengths.length > 0) {
+        const firstLength = initialLengths[0];
+        const lengthName = getFieldValue(firstLength.fields, 'name');
+        const lengthPriceAdjustment = Number(
+          getFieldValue(firstLength.fields, 'price_adjustment') || 0,
+        );
+        initialSelections['Chaise Length'] = `${lengthName}${
+          lengthPriceAdjustment > 0
+            ? ` +$${lengthPriceAdjustment}`
+            : ' Included'
+        }`;
+      }
     }
     if (totalDepths.length > 0) {
       const title = getFieldValue(totalDepths[0].fields, 'title');
@@ -79,15 +100,6 @@ export function ProductOptionPicker({product}) {
     }
     if (legs.length > 0) {
       initialSelections['Finish'] = getFieldValue(legs[0].fields, 'name');
-    }
-    if (chaiseWidths.length > 0) {
-      const name = getFieldValue(chaiseWidths[0].fields, 'name');
-      const priceAdjustment = Number(
-        getFieldValue(chaiseWidths[0].fields, 'price_adjustment') || 0,
-      );
-      initialSelections['Chaise Width'] = `${name}${
-        priceAdjustment > 0 ? ` +$${priceAdjustment}` : ' Included'
-      }`;
     }
     if (sizes.length > 0) {
       const name = getFieldValue(sizes[0].fields, 'name');
@@ -150,6 +162,59 @@ export function ProductOptionPicker({product}) {
       ...prev,
       [name]: value,
     }));
+
+    // If changing chaise width, update available lengths
+    if (name === 'Chaise Width') {
+      console.log('Value received:', value);
+      console.log('All chaise widths:', chaiseWidths);
+
+      // Find the selected width object
+      const selectedWidth = chaiseWidths.find((width) => {
+        const name = getFieldValue(width.fields, 'name');
+        console.log('Comparing with:', name);
+        return value.startsWith(name); // Use startsWith instead of exact match
+      });
+
+      console.log('Selected width object:', selectedWidth);
+
+      if (!selectedWidth) {
+        console.log('No matching width found');
+        return;
+      }
+
+      // Get the associated lengths
+      const newLengths =
+        selectedWidth.fields.find((f) => f.key === 'chaise_length')?.references
+          ?.nodes || [];
+
+      console.log('New lengths:', newLengths);
+
+      setAvailableChaiseLengths(newLengths);
+
+      // Reset chaise length selection if current selection is not available
+      const currentLengthSelection = selectedOptions['Chaise Length'];
+      const isCurrentLengthAvailable = newLengths.some((length) => {
+        const lengthName = getFieldValue(length.fields, 'name');
+        return currentLengthSelection?.startsWith(lengthName);
+      });
+
+      if (!isCurrentLengthAvailable && newLengths.length > 0) {
+        // Set first available length as selected
+        const firstLength = newLengths[0];
+        const name = getFieldValue(firstLength.fields, 'name');
+        const priceAdjustment = Number(
+          getFieldValue(firstLength.fields, 'price_adjustment') || 0,
+        );
+        const label = `${name}${
+          priceAdjustment > 0 ? ` +$${priceAdjustment}` : ' Included'
+        }`;
+
+        setSelectedOptions((prev) => ({
+          ...prev,
+          'Chaise Length': label,
+        }));
+      }
+    }
   };
 
   const cartLines = [
@@ -342,7 +407,78 @@ export function ProductOptionPicker({product}) {
         </div>
       )}
 
-      {chaiseLengths.length > 0 && (
+      {chaiseWidths.length > 0 && (
+        <div className="border rounded-lg overflow-hidden">
+          <button
+            onClick={() => toggleSection('Chaise Width')}
+            className="w-full flex items-center justify-between p-4 bg-[#8D7161] text-white"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-[#8D7161] font-bold">
+                6
+              </span>
+              <span className="text-lg">Choose Chaise Width</span>
+            </div>
+            <svg
+              className={`w-6 h-6 transition-transform ${
+                openSections['Chaise Width'] ? 'rotate-180' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {openSections['Chaise Width'] && (
+            <div className="grid grid-cols-2">
+              {chaiseWidths.map((width) => {
+                const name = getFieldValue(width.fields, 'name');
+                const priceAdjustment = Number(
+                  getFieldValue(width.fields, 'price_adjustment') || 0,
+                );
+                const label = `${name}${
+                  priceAdjustment > 0 ? ` +$${priceAdjustment}` : ' Included'
+                }`;
+                const isSelected = selectedOptions['Chaise Width'] === label;
+
+                return (
+                  <label
+                    key={name}
+                    className={`flex flex-col items-center justify-center p-6 cursor-pointer border ${
+                      isSelected ? 'bg-[#F5F1EE]' : 'bg-white'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="Chaise Width"
+                      value={label}
+                      checked={isSelected}
+                      onChange={(e) =>
+                        handleOptionChange('Chaise Width', e.target.value)
+                      }
+                      className="hidden"
+                    />
+                    <span className="text-lg">{name}</span>
+                    <span className="text-sm text-gray-600">
+                      {priceAdjustment > 0
+                        ? `+$${priceAdjustment}`
+                        : 'Included'}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {availableChaiseLengths.length > 0 && (
         <div className="border rounded-lg overflow-hidden">
           <button
             onClick={() => toggleSection('Chaise Length')}
@@ -372,7 +508,7 @@ export function ProductOptionPicker({product}) {
           </button>
           {openSections['Chaise Length'] && (
             <div className="grid grid-cols-2">
-              {chaiseLengths.map((length) => {
+              {availableChaiseLengths.map((length) => {
                 const name = getFieldValue(length.fields, 'name');
                 const priceAdjustment = Number(
                   getFieldValue(length.fields, 'price_adjustment') || 0,
@@ -535,77 +671,6 @@ export function ProductOptionPicker({product}) {
                       className="hidden"
                     />
                     <span className="text-lg">{name}</span>
-                  </label>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {chaiseWidths.length > 0 && (
-        <div className="border rounded-lg overflow-hidden">
-          <button
-            onClick={() => toggleSection('Chaise Width')}
-            className="w-full flex items-center justify-between p-4 bg-[#8D7161] text-white"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-[#8D7161] font-bold">
-                6
-              </span>
-              <span className="text-lg">Choose Chaise Width</span>
-            </div>
-            <svg
-              className={`w-6 h-6 transition-transform ${
-                openSections['Chaise Width'] ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          {openSections['Chaise Width'] && (
-            <div className="grid grid-cols-2">
-              {chaiseWidths.map((width) => {
-                const name = getFieldValue(width.fields, 'name');
-                const priceAdjustment = Number(
-                  getFieldValue(width.fields, 'price_adjustment') || 0,
-                );
-                const label = `${name}${
-                  priceAdjustment > 0 ? ` +$${priceAdjustment}` : ' Included'
-                }`;
-                const isSelected = selectedOptions['Chaise Width'] === label;
-
-                return (
-                  <label
-                    key={name}
-                    className={`flex flex-col items-center justify-center p-6 cursor-pointer border ${
-                      isSelected ? 'bg-[#F5F1EE]' : 'bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="Chaise Width"
-                      value={label}
-                      checked={isSelected}
-                      onChange={(e) =>
-                        handleOptionChange('Chaise Width', e.target.value)
-                      }
-                      className="hidden"
-                    />
-                    <span className="text-lg">{name}</span>
-                    <span className="text-sm text-gray-600">
-                      {priceAdjustment > 0
-                        ? `+$${priceAdjustment}`
-                        : 'Included'}
-                    </span>
                   </label>
                 );
               })}

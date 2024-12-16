@@ -715,10 +715,20 @@ export type ProductFragment = Pick<
       fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
     }>;
   }>;
-  chaise_length?: StorefrontAPI.Maybe<{
+  chaise_width?: StorefrontAPI.Maybe<{
     references?: StorefrontAPI.Maybe<{
       nodes: Array<{
-        fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
+        fields: Array<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+            references?: StorefrontAPI.Maybe<{
+              nodes: Array<{
+                fields: Array<
+                  Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+                >;
+              }>;
+            }>;
+          }
+        >;
       }>;
     }>;
   }>;
@@ -730,13 +740,6 @@ export type ProductFragment = Pick<
     }>;
   }>;
   legs?: StorefrontAPI.Maybe<{
-    references?: StorefrontAPI.Maybe<{
-      nodes: Array<{
-        fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
-      }>;
-    }>;
-  }>;
-  chaise_width?: StorefrontAPI.Maybe<{
     references?: StorefrontAPI.Maybe<{
       nodes: Array<{
         fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
@@ -866,10 +869,20 @@ export type ProductQuery = {
           fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
         }>;
       }>;
-      chaise_length?: StorefrontAPI.Maybe<{
+      chaise_width?: StorefrontAPI.Maybe<{
         references?: StorefrontAPI.Maybe<{
           nodes: Array<{
-            fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
+            fields: Array<
+              Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+                references?: StorefrontAPI.Maybe<{
+                  nodes: Array<{
+                    fields: Array<
+                      Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+                    >;
+                  }>;
+                }>;
+              }
+            >;
           }>;
         }>;
       }>;
@@ -881,13 +894,6 @@ export type ProductQuery = {
         }>;
       }>;
       legs?: StorefrontAPI.Maybe<{
-        references?: StorefrontAPI.Maybe<{
-          nodes: Array<{
-            fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
-          }>;
-        }>;
-      }>;
-      chaise_width?: StorefrontAPI.Maybe<{
         references?: StorefrontAPI.Maybe<{
           nodes: Array<{
             fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
@@ -1311,7 +1317,7 @@ interface GeneratedQueryTypes {
     return: PoliciesQuery;
     variables: PoliciesQueryVariables;
   };
-  '#graphql\n  query Product(\n    $country: CountryCode\n    $handle: String!\n    $language: LanguageCode\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      ...Product\n    }\n  }\n  #graphql\n  fragment Product on Product {\n    id\n    title\n    vendor\n    handle\n    descriptionHtml\n    description\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n\n        chaise_side: metafield(namespace: "custom", key: "chaise_side") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                key\n                value\n                }\n              }\n            }\n          }\n        }\n        fabric_options: metafield(namespace: "custom", key: "fabric_options") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                  references(first: 1) {\n                    nodes {\n                      ... on Metaobject {\n                        fields {\n                          key\n                          value\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n        pricing_class: metafield(namespace: "custom", key: "pricing_class") {\n          reference {\n            ... on Metaobject {\n              fields {\n                key\n                value\n              }\n            }\n          }\n        }\n        chaise_length: metafield(namespace: "custom", key: "chaise_length") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        total_depth: metafield(namespace: "custom", key: "total_depth") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        legs: metafield(namespace: "custom", key: "legs") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        chaise_width: metafield(namespace: "custom", key: "chaise_width") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        size: metafield(namespace: "custom", key: "size") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        seat_cushions: metafield(namespace: "custom", key: "seat_cushions") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n        cushion_fill: metafield(namespace: "custom", key: "cushion_fill") {\n          references(first: 50) {\n            nodes {\n              ... on Metaobject {\n                fields {\n                  key\n                  value\n                }\n              }\n            }\n          }\n        }\n    selectedVariant: variantBySelectedOptions(selectedOptions: $selectedOptions) {\n      ...ProductVariant\n    }\n    variants(first: 1) {\n      nodes {\n        ...ProductVariant\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    availableForSale\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    id\n    image {\n      __typename\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    selectedOptions {\n      name\n      value\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n  }\n\n\n': {
+  '#graphql\n  query Product(\n    $country: CountryCode\n    $handle: String!\n    $language: LanguageCode\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      ...Product\n    }\n  }\n  #graphql\n  fragment Product on Product {\n    id\n    title\n    vendor\n    handle\n    descriptionHtml\n    description\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n\n    chaise_side: metafield(namespace: "custom", key: "chaise_side") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    fabric_options: metafield(namespace: "custom", key: "fabric_options") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n              references(first: 1) {\n                nodes {\n                  ... on Metaobject {\n                    fields {\n                      key\n                      value\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    pricing_class: metafield(namespace: "custom", key: "pricing_class") {\n      reference {\n        ... on Metaobject {\n          fields {\n            key\n            value\n          }\n        }\n      }\n    }\n    chaise_width: metafield(namespace: "custom", key: "chaise_width") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n              references(first: 50) {\n                nodes {\n                  ... on Metaobject {\n                    fields {\n                      key\n                      value\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    total_depth: metafield(namespace: "custom", key: "total_depth") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    legs: metafield(namespace: "custom", key: "legs") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    size: metafield(namespace: "custom", key: "size") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    seat_cushions: metafield(namespace: "custom", key: "seat_cushions") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    cushion_fill: metafield(namespace: "custom", key: "cushion_fill") {\n      references(first: 50) {\n        nodes {\n          ... on Metaobject {\n            fields {\n              key\n              value\n            }\n          }\n        }\n      }\n    }\n    selectedVariant: variantBySelectedOptions(selectedOptions: $selectedOptions) {\n      ...ProductVariant\n    }\n    variants(first: 1) {\n      nodes {\n        ...ProductVariant\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    availableForSale\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    id\n    image {\n      __typename\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    selectedOptions {\n      name\n      value\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n  }\n\n\n': {
     return: ProductQuery;
     variables: ProductQueryVariables;
   };
